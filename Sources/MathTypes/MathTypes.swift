@@ -10,6 +10,10 @@ public typealias ImaginaryInt = Imaginary<Int>
 public typealias ImaginaryFloat = Imaginary<Float>
 public typealias ImaginaryDouble = Imaginary<Double>
 
+public typealias ComplexInt = Complex<Int>
+public typealias ComplexFloat = Complex<Float>
+public typealias ComplexDouble = Complex<Double>
+
 public let im : ImaginaryInt = 1
 
 // Note that the requirement T.Stride == T implies T:SignedNumeric.
@@ -28,6 +32,7 @@ public struct Imaginary<T> where T:Strideable, T.Stride == T {
         self.raw = imag
     }
 }
+
 public struct Complex<T> where T:Strideable, T.Stride == T {
     public var real : Real<T>
     public var imag : Imaginary<T>
@@ -422,20 +427,11 @@ extension Complex  {
 //===----------------------------------------------------------------------===//
 
 extension Real where T:FloatingPoint {
-    public init(_ real: Int8 ) {
-        self.raw = T(real)
-    }
-    public init(_ real: Int16 ) {
-        self.raw = T(real)
-    }
-    public init(_ real: Int32 ) {
-        self.raw = T(real)
-    }
-    public init(_ real: Int64 ) {
-        self.raw = T(real)
-    }
     public init(_ real: Int ) {
         self.raw = T(real)
+    }
+    public init(_ real: RealInt ) {
+        self.raw = T(real.raw)
     }
 }
 
@@ -460,12 +456,32 @@ extension Real where T:FloatingPoint {
 }
 
 extension Imaginary where T:FloatingPoint {
+    public init(_ imag: Int ) {
+        self.raw = T(imag)
+    }
+    public init(_ imag: ImaginaryInt ) {
+        self.raw = T(imag.raw)
+    }
+}
+
+extension Imaginary where T:FloatingPoint {
     public static func / (lhs: Imaginary, rhs: Imaginary) -> Real<T> {
         return Real(lhs.raw/rhs.raw)
     }
     
     public static func / (lhs: Imaginary, rhs: Real<T>) -> Imaginary {
         return Imaginary(lhs.raw/rhs.raw)
+    }
+}
+
+extension Complex where T:FloatingPoint {
+    public init(real: Int, imag: Int) {
+        self.real = Real<T>(real)
+        self.imag = Imaginary<T>(imag)
+    }
+    public init(_ complex: ComplexInt) {
+        self.real = Real(complex.real)
+        self.imag = Imaginary(complex.imag)
     }
 }
 
@@ -483,25 +499,55 @@ extension Complex where T:FloatingPoint {
     }
 }
 
-
 //===----------------------------------------------------------------------===//
 // MARK: - Integer division
 //===----------------------------------------------------------------------===//
+// Important note: this is the *one* spot where we must choose the output type. Ideally, the user could somehow override our default precision.
 
+// I would think that this *should* do the exact same thing as the global function below, but it doesn't.
 extension Real where T == Int {
-    public static func / (lhs: Real, rhs: Real) -> RealFloat {
-        return RealFloat(lhs.raw)/RealFloat(rhs.raw)
+    public static func / (lhs: Real, rhs: Real) -> RealDouble {
+        return RealDouble(lhs.raw)/RealDouble(rhs.raw)
     }
 }
 
-//public func / (lhs: RealInt, rhs: RealInt) -> RealFloat {
-//    return RealFloat(lhs.raw)/RealFloat(rhs.raw)
-//}
+public func / (lhs: RealInt, rhs: RealInt) -> RealDouble {
+    return RealDouble(lhs.raw)/RealDouble(rhs.raw)
+}
 
 //===----------------------------------------------------------------------===//
-// Operations
+// MARK: - Mixed type (Int, Float, Double) binary operations
 //===----------------------------------------------------------------------===//
+// Julia has a set of rules to 'promote' types,
+//  https://docs.julialang.org/en/stable/manual/conversion-and-promotion/
+// It would be great if we could do that too (at minimal cost).
 
-//public func +<T>(_ lhs: Real<T>,_ rhs: Imaginary<T>) -> Complex<T> where T:Strideable, T.Stride == T {
-//    return Complex(real:lhs,imag:rhs)
-//}
+extension Imaginary where T == Int {
+    public static func +<F>(lhs: Imaginary, rhs: Real<F>) -> Complex<F> where F:FloatingPoint, F.Stride == F {
+        return Imaginary<F>(lhs) + rhs
+    }
+    
+    public static func + (lhs: Imaginary, rhs: Complex<T>) -> Complex<T> {
+        return Complex(real:rhs.real,imag:lhs + rhs.imag)
+    }
+    
+    public static func - (lhs: Imaginary, rhs: Real<T>) -> Complex<T> {
+        return Complex(real:-rhs,imag:lhs)
+    }
+    
+    public static func - (lhs: Imaginary, rhs: Complex<T>) -> Complex<T> {
+        return Complex(real:-rhs.real,imag:lhs - rhs.imag)
+    }
+    
+    public static func * (lhs: Imaginary, rhs: Imaginary) -> Real<T> {
+        return Real(-lhs.raw*rhs.raw)
+    }
+    
+    public static func * (lhs: Imaginary, rhs: Real<T>) -> Imaginary {
+        return Imaginary(lhs.raw*rhs.raw)
+    }
+    
+    public static func * (lhs: Imaginary, rhs: Complex<T>) -> Complex<T> {
+        return Complex(real:-rhs.imag.raw,imag:rhs.real.raw)
+    }
+}
