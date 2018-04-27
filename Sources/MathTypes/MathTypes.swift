@@ -48,6 +48,8 @@ public struct Complex<T> where T:Strideable, T.Stride == T {
     }
 }
 
+// We will all the major binary operations on these types with each other. That means each binary operation will have six cases to consider: n*(n-1) with the extra factor of 2 from reversing the order of the operands.
+
 //===----------------------------------------------------------------------===//
 // MARK: - Real protocol conformance
 //===----------------------------------------------------------------------===//
@@ -435,6 +437,13 @@ extension Real where T:FloatingPoint {
     }
 }
 
+extension Real : ExpressibleByFloatLiteral where T : _ExpressibleByBuiltinFloatLiteral {
+    public typealias FloatLiteralType = T
+    public init(floatLiteral value: T) {
+        self.raw = value
+    }
+}
+
 extension Real where T:FloatingPoint {
     public static func / (lhs: Real, rhs: Real) -> Real {
         var lhs = lhs
@@ -506,13 +515,13 @@ extension Complex where T:FloatingPoint {
 
 // I would think that this *should* do the exact same thing as the global function below, but it doesn't.
 extension Real where T == Int {
-    public static func / (lhs: Real, rhs: Real) -> RealDouble {
-        return RealDouble(lhs.raw)/RealDouble(rhs.raw)
+    public static func / (lhs: Real, rhs: Real) -> Real<Double> {
+        return Real<Double>(lhs.raw)/Real<Double>(rhs.raw)
     }
 }
 
-public func / (lhs: RealInt, rhs: RealInt) -> RealDouble {
-    return RealDouble(lhs.raw)/RealDouble(rhs.raw)
+public func / (lhs: Real<Int>, rhs: Real<Int>) -> Real<Double> {
+    return Real<Double>(lhs.raw)/Real<Double>(rhs.raw)
 }
 
 //===----------------------------------------------------------------------===//
@@ -522,32 +531,113 @@ public func / (lhs: RealInt, rhs: RealInt) -> RealDouble {
 //  https://docs.julialang.org/en/stable/manual/conversion-and-promotion/
 // It would be great if we could do that too (at minimal cost).
 
+// This *really* feels like there's a better way with generics
 extension Imaginary where T == Int {
-    public static func +<F>(lhs: Imaginary, rhs: Real<F>) -> Complex<F> where F:FloatingPoint, F.Stride == F {
+    public static func + <F>(lhs: Imaginary, rhs: Real<F>) -> Complex<F> where F:FloatingPoint, F.Stride == F {
         return Imaginary<F>(lhs) + rhs
     }
     
-    public static func + (lhs: Imaginary, rhs: Complex<T>) -> Complex<T> {
-        return Complex(real:rhs.real,imag:lhs + rhs.imag)
+    public static func + <F>(lhs: Imaginary, rhs: Complex<F>) -> Complex<F> where F:FloatingPoint, F.Stride == F {
+        return Imaginary<F>(lhs) + rhs
     }
     
-    public static func - (lhs: Imaginary, rhs: Real<T>) -> Complex<T> {
-        return Complex(real:-rhs,imag:lhs)
+    public static func - <F>(lhs: Imaginary, rhs: Real<F>) -> Complex<F> where F:FloatingPoint, F.Stride == F {
+        return Imaginary<F>(lhs) - rhs
     }
     
-    public static func - (lhs: Imaginary, rhs: Complex<T>) -> Complex<T> {
-        return Complex(real:-rhs.real,imag:lhs - rhs.imag)
+    public static func - <F>(lhs: Imaginary, rhs: Complex<F>) -> Complex<F> where F:FloatingPoint, F.Stride == F {
+        return Imaginary<F>(lhs) - rhs
     }
     
-    public static func * (lhs: Imaginary, rhs: Imaginary) -> Real<T> {
-        return Real(-lhs.raw*rhs.raw)
+    public static func * <F>(lhs: Imaginary, rhs: Imaginary<F>) -> Real<F> where F:FloatingPoint, F.Stride == F {
+        return Imaginary<F>(lhs) * rhs
     }
     
-    public static func * (lhs: Imaginary, rhs: Real<T>) -> Imaginary {
-        return Imaginary(lhs.raw*rhs.raw)
+    public static func * <F>(lhs: Imaginary, rhs: Real<F>) -> Imaginary<F> where F:FloatingPoint, F.Stride == F {
+        return Imaginary<F>(lhs) * rhs
     }
     
-    public static func * (lhs: Imaginary, rhs: Complex<T>) -> Complex<T> {
-        return Complex(real:-rhs.imag.raw,imag:rhs.real.raw)
+    public static func * <F>(lhs: Imaginary, rhs: Complex<F>) -> Complex<F> where F:FloatingPoint, F.Stride == F {
+        return Imaginary<F>(lhs) * rhs
+    }
+    
+    // Now do the operand raw-type mirror image of the above
+    public static func + <F>(lhs: Imaginary<F>, rhs: Real<T>) -> Complex<F> where F:FloatingPoint, F.Stride == F {
+        return lhs + Real<F>(rhs)
+    }
+    
+    public static func + <F>(lhs: Imaginary<F>, rhs: Complex<T>) -> Complex<F> where F:FloatingPoint, F.Stride == F {
+        return lhs + Complex<F>(rhs)
+    }
+    
+    public static func - <F>(lhs: Imaginary<F>, rhs: Real<T>) -> Complex<F> where F:FloatingPoint, F.Stride == F {
+        return lhs - Real<F>(rhs)
+    }
+    
+    public static func - <F>(lhs: Imaginary<F>, rhs: Complex<T>) -> Complex<F> where F:FloatingPoint, F.Stride == F {
+        return lhs - Complex<F>(rhs)
+    }
+    
+    public static func * <F>(lhs: Imaginary<F>, rhs: Imaginary<T>) -> Real<F> where F:FloatingPoint, F.Stride == F {
+        return lhs * Imaginary<F>(rhs)
+    }
+    
+    public static func * <F>(lhs: Imaginary<F>, rhs: Real<T>) -> Imaginary<F> where F:FloatingPoint, F.Stride == F {
+        return lhs * Real<F>(rhs)
+    }
+    
+    public static func * <F>(lhs: Imaginary<F>, rhs: Complex<T>) -> Complex<F> where F:FloatingPoint, F.Stride == F {
+        return lhs * Complex<F>(rhs)
+    }
+}
+
+extension Real  where T == Int  {
+    public static func + <F>(lhs: Real, rhs: Imaginary<F>) -> Complex<F> where F:FloatingPoint, F.Stride == F {
+        return Real<F>(lhs) + rhs
+    }
+    
+    public static func + <F>(lhs: Real, rhs: Complex<F>) -> Complex<F> where F:FloatingPoint, F.Stride == F {
+        return Real<F>(lhs) + rhs
+    }
+    
+    public static func - <F>(lhs: Real, rhs: Imaginary<F>) -> Complex<F> where F:FloatingPoint, F.Stride == F {
+        return Real<F>(lhs) - rhs
+    }
+    
+    public static func - <F>(lhs: Real, rhs: Complex<F>) -> Complex<F> where F:FloatingPoint, F.Stride == F {
+        return Real<F>(lhs) - rhs
+    }
+    
+    public static func * <F>(lhs: Real, rhs: Imaginary<F>) -> Imaginary<F> where F:FloatingPoint, F.Stride == F {
+        return Real<F>(lhs) * rhs
+    }
+    
+    public static func * <F>(lhs: Real, rhs: Complex<F>) -> Complex<F> where F:FloatingPoint, F.Stride == F {
+        return Real<F>(lhs) * rhs
+    }
+    
+    // Now do the operand raw-type mirror image of the above
+    public static func + <F>(lhs: Real<F>, rhs: Imaginary<T>) -> Complex<F> where F:FloatingPoint, F.Stride == F {
+        return lhs + Imaginary<F>(rhs)
+    }
+    
+    public static func + <F>(lhs: Real<F>, rhs: Complex<T>) -> Complex<F> where F:FloatingPoint, F.Stride == F {
+        return lhs + Complex<F>(rhs)
+    }
+    
+    public static func - <F>(lhs: Real<F>, rhs: Imaginary<T>) -> Complex<F> where F:FloatingPoint, F.Stride == F {
+        return lhs - Imaginary<F>(rhs)
+    }
+    
+    public static func - <F>(lhs: Real<F>, rhs: Complex<T>) -> Complex<F> where F:FloatingPoint, F.Stride == F {
+        return lhs - Complex<F>(rhs)
+    }
+    
+    public static func * <F>(lhs: Real<F>, rhs: Imaginary<T>) -> Imaginary<F> where F:FloatingPoint, F.Stride == F {
+        return lhs * Imaginary<F>(rhs)
+    }
+    
+    public static func * <F>(lhs: Real<F>, rhs: Complex<T>) -> Complex<F> where F:FloatingPoint, F.Stride == F {
+        return lhs * Complex<F>(rhs)
     }
 }
