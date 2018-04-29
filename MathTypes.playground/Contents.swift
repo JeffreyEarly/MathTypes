@@ -6,16 +6,20 @@ import MathTypes
 typealias IntegerLiteralType = RealInt
 typealias FloatLiteralType = RealDouble
 //: Try addition, substraction, multiplication
-let a = 2*im
-let b = 1 + a
+let z = 1
+let y = z + z
 
-let c = b*im
-let d = c*c
-//: Division of a ```RealInt``` gives you a ```RealDouble```
-let e = 1 / 2
-//: Multiply a ```RealDouble``` by ```im``` (an ```ImaginaryInt```) and it does the right thing.
-let f = 1.0
-let g = f*im
+
+//let a = 2*im
+//let b = 1 + a
+//
+//let c = b*im
+//let d = c*c
+////: Division of a ```RealInt``` gives you a ```RealDouble```
+//let e = 1 / 2
+////: Multiply a ```RealDouble``` by ```im``` (an ```ImaginaryInt```) and it does the right thing.
+//let f = 1.0
+//let g = f*im
 
 
 
