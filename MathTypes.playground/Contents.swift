@@ -6,9 +6,10 @@ import MathTypes
 typealias IntegerLiteralType = RealInt
 typealias FloatLiteralType = RealDouble
 //: Try addition, substraction, multiplication
-let z = 1
-let y = z + z
-
+let a = 1.0
+let c = a * im
+let b : Imaginary<Int> = 2
+let d = c + b
 
 //let a = 2*im
 //let b = 1 + a
