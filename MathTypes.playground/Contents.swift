@@ -11,6 +11,9 @@ let c = a * im
 let b : Imaginary<Int> = 2
 let d = c + b
 
+//let e = [a,c]
+let e : Array<Int> = [1,2]
+
 //let a = 2*im
 //let b = 1 + a
 //
