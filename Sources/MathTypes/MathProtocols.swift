@@ -28,7 +28,7 @@ protocol Number {
         
 }
 
-protocol PositiveRealNumber {
+protocol PositiveRealNumber : RealNumber {
     static func +<O,R>(lhs: Self, rhs: O) -> R where O:PositiveRealNumber, R:PositiveRealNumber
     static func +<O,R>(lhs: Self, rhs: O) -> R where O:NegativeRealNumber, R:RealNumber
     static func +<O,R>(lhs: Self, rhs: O) -> R where O:RealNumber, R:RealNumber
@@ -55,7 +55,7 @@ protocol PositiveRealNumber {
 }
 
 
-protocol NegativeRealNumber {
+protocol NegativeRealNumber : RealNumber{
     static func +<O,R>(lhs: Self, rhs: O) -> R where O:PositiveRealNumber, R:RealNumber
     static func +<O,R>(lhs: Self, rhs: O) -> R where O:NegativeRealNumber, R:NegativeRealNumber
     static func +<O,R>(lhs: Self, rhs: O) -> R where O:RealNumber, R:RealNumber
@@ -81,7 +81,7 @@ protocol NegativeRealNumber {
     static func /<O,R>(lhs: Self, rhs: O) -> R where O:ComplexNumber, R:ComplexNumber
 }
 
-protocol RealNumber : Number {
+protocol RealNumber : ComplexNumber {
     static func +<O,R>(lhs: Self, rhs: O) -> R where O:PositiveRealNumber, R:RealNumber
     static func +<O,R>(lhs: Self, rhs: O) -> R where O:NegativeRealNumber, R:RealNumber
     static func +<O,R>(lhs: Self, rhs: O) -> R where O:RealNumber, R:RealNumber
@@ -107,7 +107,7 @@ protocol RealNumber : Number {
     static func /<O,R>(lhs: Self, rhs: O) -> R where O:ComplexNumber, R:ComplexNumber
 }
 
-protocol ImaginaryNumber {
+protocol ImaginaryNumber : ComplexNumber {
     static func +<O,R>(lhs: Self, rhs: O) -> R where O:PositiveRealNumber, R:ComplexNumber
     static func +<O,R>(lhs: Self, rhs: O) -> R where O:NegativeRealNumber, R:ComplexNumber
     static func +<O,R>(lhs: Self, rhs: O) -> R where O:RealNumber, R:ComplexNumber
@@ -133,7 +133,7 @@ protocol ImaginaryNumber {
     static func /<O,R>(lhs: Self, rhs: O) -> R where O:ComplexNumber, R:ComplexNumber
 }
 
-protocol ComplexNumber {
+protocol ComplexNumber : Number {
     static func +<O,R>(lhs: Self, rhs: O) -> R where O:PositiveRealNumber, R:ComplexNumber
     static func +<O,R>(lhs: Self, rhs: O) -> R where O:NegativeRealNumber, R:ComplexNumber
     static func +<O,R>(lhs: Self, rhs: O) -> R where O:RealNumber, R:ComplexNumber

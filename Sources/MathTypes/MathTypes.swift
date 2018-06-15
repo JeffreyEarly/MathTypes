@@ -48,7 +48,6 @@ public struct Complex<T> where T:Strideable, T.Stride == T {
     }
 }
 
-
 // We will all the major binary operations on these types with each other. That means each binary operation will have six cases to consider: n*(n-1) with the extra factor of 2 from reversing the order of the operands.
 
 //===----------------------------------------------------------------------===//
