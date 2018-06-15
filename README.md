@@ -34,6 +34,16 @@ Implementation
 
 In order to address design requirement #1, this math type library does not define any operations on existing Swift Standard library types. The MathTypes library uses ```Int```, ```Float```, ```Double```, etc only as a *storage* for a new set of types. This allows the implementation of design requirement #2 (mixed precision operations) without interfering with any existing Swift code.
 
+The inheritance structure of the basic algebriac types is shown in the following figure,
 ![Type hierarchy](Documentation/NumberHierarchy.png)
+where it is to be understood that the number 0 is included in both the positive and negative partitioning of the real number line.
 
-Because Swift is statically typed, avoiding unnecessary algebriac type promotion in Swift *requires* encoding the algebriac structure of the different types.
+Because Swift is statically typed, avoiding unnecessary algebriac type promotion in Swift *requires* encoding the above algebriac structure of the different types.
+
+Friction
+=======
+
+1. Arrays
+2. The number zero
+3. Integer division floating point precision
+4. Writing new function that take a generic Number type
