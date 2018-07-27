@@ -172,3 +172,4 @@ protocol ComplexNumber : ExpressibleByIntegerLiteral, CustomStringConvertible, E
     static func /<O,R>(lhs: Self, rhs: O) -> R where O:ImaginaryNumber, R:ComplexNumber
     static func /<O,R>(lhs: Self, rhs: O) -> R where O:ComplexNumber, R:ComplexNumber
 }
+
