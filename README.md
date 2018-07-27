@@ -38,9 +38,11 @@ The inheritance structure of the basic algebriac types is shown in the following
 ![Type hierarchy](Documentation/NumberHierarchy.png)
 where it is to be understood that the number 0 is included in both the positive and negative partitioning of the real number line.
 
-Because Swift is statically typed, avoiding unnecessary algebriac type promotion in Swift *requires* encoding the above algebriac structure of the different types.
+Because Swift is statically typed, avoiding unnecessary algebriac type promotion in Swift *requires* encoding the above algebriac structure of the different types. For example, addition binary operator has the following structure,
 
 ![Addition algebra](Documentation/BinaryOperatorAlgebraicStructureAddition.png)
+
+which must be somehow encoded into Swift.
 
 Friction
 =======
